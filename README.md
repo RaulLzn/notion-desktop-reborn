@@ -3,6 +3,6 @@
 A snap of [Notion](https://notion.so)
 
 ```
-snap install notion-snap
+snap install notion-snap-reborn
 ```
-## Special thanks
+## Special thanks to [Steverydz](https://github.com/steverydz)

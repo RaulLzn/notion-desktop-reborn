@@ -1,11 +1,19 @@
 {
-  "name": "notion-snap",
+  "name": "notion-snap-reborn",
   "version": "1.0.0",
   "description": "A snap of Notion",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --linux snap"
+  },
+  "build": {
+    "productName": "notion-Snap-reborn",
+    "linux": {
+      "target": "snap",
+      "category": "Utility",
+      "icon": "icon.png"
+    }
   },
   "keywords": [],
   "author": "",
