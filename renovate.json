@@ -3,6 +3,8 @@
   "extends":[
     "config:base"
   ],
-  "automerge": true,
-  "confidential": true
+  "baseBranches": [
+    "develop"
+  ],
+  "automerge": true
 }
