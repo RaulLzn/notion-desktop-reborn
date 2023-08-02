@@ -22,6 +22,8 @@ jobs:
 
       - name: Setup Pnpm
         uses: pnpm/action-setup@v2
+        with:
+          version: latest
 
       - name: Install dependencies
         run: pnpm install
