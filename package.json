@@ -1,6 +1,6 @@
 {
   "name": "notion-snap-reborn",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A snap of Notion",
   "main": "main.js",
   "scripts": {
@@ -19,7 +19,7 @@
   "author": "Sunshio",
   "license": "ISC",
   "devDependencies": {
-    "electron": "25.1.0",
-    "electron-builder": "23.6.0"
+    "electron": "25.3.2",
+    "electron-builder": "24.6.3"
   }
 }
