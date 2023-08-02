@@ -22,12 +22,14 @@ jobs:
 
       - name: Setup Pnpm
         uses: pnpm/action-setup@v2
+        with:
+          version: latest
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Bump version in package.json
-        uses: "phips28/gh-action-bump-version@master"
+        uses: " "
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
