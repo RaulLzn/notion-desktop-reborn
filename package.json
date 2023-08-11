@@ -15,7 +15,10 @@
       "icon": "icon.png"
     }
   },
-  "keywords": [],
+  "keywords": [
+    "notion",
+    "snapcraft"
+  ],
   "author": "Sunshio",
   "license": "ISC",
   "devDependencies": {
