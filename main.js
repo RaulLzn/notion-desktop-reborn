@@ -3,6 +3,9 @@ const { app, BrowserWindow, shell } = require("electron");
 app.on("ready", () => {
   const win = new BrowserWindow({
     autoHideMenuBar: true,
+    webPreferences: {
+      spellcheck: false
+    }
   });
   win.maximize();
   win.loadURL("https://notion.so");
