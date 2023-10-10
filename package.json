@@ -1,6 +1,6 @@
 {
   "name": "notion-snap-reborn",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "A snap of Notion",
   "main": "main.js",
   "scripts": {
