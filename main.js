@@ -1,5 +1,5 @@
 const { app, BrowserWindow, shell } = require("electron");
-const { registerMenuHandling, toggleMenuBar } = require("./menuBarHandling");
+const { registerMenuHandling } = require("./menuBarHandling");
 
 app.on("ready", () => {
   const win = new BrowserWindow({

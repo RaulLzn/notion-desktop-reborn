@@ -42,4 +42,4 @@ function registerMenuHandling(win) {
   }
 }
 
-module.exports = { registerMenuHandling, toggleMenuBar };
+module.exports = { registerMenuHandling };
