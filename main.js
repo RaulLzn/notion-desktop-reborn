@@ -1,4 +1,5 @@
 const { app, BrowserWindow, shell } = require("electron");
+const { registerMenuHandling, toggleMenuBar } = require("./menuBarHandling");
 
 app.on("ready", () => {
   const win = new BrowserWindow({
@@ -9,6 +10,8 @@ app.on("ready", () => {
   });
   win.maximize();
   win.loadURL("https://notion.so");
+
+  registerMenuHandling(win);
 
   // Deal with external links
   win.webContents.setWindowOpenHandler(({ url }) => {
