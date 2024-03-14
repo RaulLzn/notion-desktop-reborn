@@ -1,15 +1,24 @@
-const { app, BrowserWindow, shell } = require("electron");
+const { app, BrowserWindow, shell, session } = require("electron");
 const { registerMenuHandling } = require("./menuBarHandling");
 
 app.on("ready", () => {
+  // *
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    details.requestHeaders["User-Agent"] = "Chrome";
+    callback({ cancel: false, requestHeaders: details.requestHeaders });
+  });
+
   const win = new BrowserWindow({
     autoHideMenuBar: true,
     webPreferences: {
-      spellcheck: false
-    }
+      spellcheck: false,
+    },
   });
   win.maximize();
-  win.loadURL("https://notion.so");
+  // *
+  session.defaultSession.setUserAgent("Chrome");
+  // *
+  win.loadURL("https://notion.so", { userAgent: "Chrome" });
 
   registerMenuHandling(win);
 
