@@ -92,8 +92,8 @@ packages:
   '@types/ms@0.7.34':
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
 
-  '@types/node@20.14.10':
-    resolution: {integrity: sha512-MdiXf+nDuMvY0gJKxyfZ7/6UFsETO7mGKF54MVD/ekJS6HdFtpZFBgrh6Pseu64XTb2MLyFPlbW6hj8HYRQNOQ==}
+  '@types/node@20.14.11':
+    resolution: {integrity: sha512-kprQpL8MMeszbz6ojB5/tU8PLN4kesnN8Gjzw349rDlNgsSzg90lAVj3llK99Dh7JON+t9AuscPPFW6mPbTnSA==}
 
   '@types/plist@3.0.5':
     resolution: {integrity: sha512-E6OCaRmAe4WDmWNsL/9RMqdkkzDCY1etutkflWk4c+AcjDU07Pcz1fQwTX0TQz+Pxqn9i4L1TU3UFpjnrcDgxA==}
@@ -599,8 +599,8 @@ packages:
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
 
-  jake@10.9.1:
-    resolution: {integrity: sha512-61btcOHNnLnsOdtLgA5efqQWjnSi/vow5HbI7HMdKKWqvrKR1bLK3BPlJn9gcSaP2ewuamUSMB5XEy76KUIS2w==}
+  jake@10.9.2:
+    resolution: {integrity: sha512-2P4SQ0HrLQ+fw6llpLnOaGAvN2Zu6778SJMrCUwns4fOoG9ayrTiZk3VV8sCPkVZF8ab0zksVpS8FDY5pRCNBA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -850,8 +850,8 @@ packages:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
 
-  semver@7.6.2:
-    resolution: {integrity: sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==}
+  semver@7.6.3:
+    resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -1120,7 +1120,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 20.14.10
+      '@types/node': 20.14.11
       '@types/responselike': 1.0.3
 
   '@types/debug@4.1.12':
@@ -1129,36 +1129,36 @@ snapshots:
 
   '@types/fs-extra@9.0.13':
     dependencies:
-      '@types/node': 20.14.10
+      '@types/node': 20.14.11
 
   '@types/http-cache-semantics@4.0.4': {}
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.14.10
+      '@types/node': 20.14.11
 
   '@types/ms@0.7.34': {}
 
-  '@types/node@20.14.10':
+  '@types/node@20.14.11':
     dependencies:
       undici-types: 5.26.5
 
   '@types/plist@3.0.5':
     dependencies:
-      '@types/node': 20.14.10
+      '@types/node': 20.14.11
       xmlbuilder: 15.1.1
     optional: true
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.14.10
+      '@types/node': 20.14.11
 
   '@types/verror@1.10.10':
     optional: true
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 20.14.10
+      '@types/node': 20.14.11
     optional: true
 
   '@xmldom/xmldom@0.8.10': {}
@@ -1220,7 +1220,7 @@ snapshots:
       minimatch: 5.1.6
       read-config-file: 6.3.2
       sanitize-filename: 1.6.3
-      semver: 7.6.2
+      semver: 7.6.3
       tar: 6.2.1
       temp-file: 3.4.0
     transitivePeerDependencies:
@@ -1503,7 +1503,7 @@ snapshots:
 
   ejs@3.1.10:
     dependencies:
-      jake: 10.9.1
+      jake: 10.9.2
 
   electron-builder-squirrel-windows@24.13.3(dmg-builder@24.13.3):
     dependencies:
@@ -1547,7 +1547,7 @@ snapshots:
   electron@29.2.0:
     dependencies:
       '@electron/get': 2.0.3
-      '@types/node': 20.14.10
+      '@types/node': 20.14.11
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -1685,7 +1685,7 @@ snapshots:
       es6-error: 4.1.1
       matcher: 3.0.0
       roarr: 2.15.4
-      semver: 7.6.2
+      semver: 7.6.3
       serialize-error: 7.0.1
     optional: true
 
@@ -1799,7 +1799,7 @@ snapshots:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
 
-  jake@10.9.1:
+  jake@10.9.2:
     dependencies:
       async: 3.2.5
       chalk: 4.1.2
@@ -2026,7 +2026,7 @@ snapshots:
 
   semver@6.3.1: {}
 
-  semver@7.6.2: {}
+  semver@7.6.3: {}
 
   serialize-error@7.0.1:
     dependencies:
@@ -2043,7 +2043,7 @@ snapshots:
 
   simple-update-notifier@2.0.0:
     dependencies:
-      semver: 7.6.2
+      semver: 7.6.3
 
   slice-ansi@3.0.0:
     dependencies:
