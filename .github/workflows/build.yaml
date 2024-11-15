@@ -48,7 +48,7 @@ jobs:
         run: pnpm dist
 
       - name: Snap Login
-        uses: samuelmeuli/action-snapcraft@v2
+        uses: samuelmeuli/action-snapcraft@v3
 
       - name: Upload
         run: snapcraft upload --release=stable dist/notion-snap-reborn*.snap
