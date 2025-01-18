@@ -17,27 +17,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Setup Pnpm
-        uses: pnpm/action-setup@v3
+      - name: Setup Bun.sh
+        uses: oven-sh/setup-bun@v2
         with:
-          version: latest
-          run_install: false
+          bun-version: latest
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-bun-
 
       - name: Install dependencies
-        run: pnpm install
+        run: bun install
 
       - name: Bump version in package.json
         uses: phips28/gh-action-bump-version@master
@@ -45,7 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        run: pnpm dist
+        run: bun dist
 
       - name: Snap Login
         uses: samuelmeuli/action-snapcraft@v3
