@@ -99,6 +99,15 @@ const createApplicationMenu = () => {
           }
         },
         { type: 'separator' },
+        {
+          label: 'Redimensionar vistas',
+          accelerator: 'CmdOrCtrl+Shift+R',
+          click: (menuItem, browserWindow) => {
+            if (browserWindow && browserWindow.contentViews) {
+              forceResizeAllViews(browserWindow);
+            }
+          }
+        },
         { role: 'togglefullscreen' }
       ]
     },
@@ -186,16 +195,52 @@ const createWindow = () => {
   win.contentViews = [contentView]; // Array to store all content views
   win.activeTabIndex = 0;
   
-  // Handle window resize
-  win.on('resize', () => {
+  // Function to resize all views properly
+  const resizeAllViews = () => {
     const newBounds = win.getContentBounds();
+    const tabBarHeight = 40;
+    
+    // Resize tab bar
     tabBarView.setBounds({ x: 0, y: 0, width: newBounds.width, height: tabBarHeight });
     
-    // Resize active content view
-    const activeView = win.contentViews[win.activeTabIndex];
-    if (activeView) {
-      activeView.setBounds({ x: 0, y: tabBarHeight, width: newBounds.width, height: newBounds.height - tabBarHeight });
-    }
+    // Resize all content views (not just active one)
+    win.contentViews.forEach((view, index) => {
+      if (view) {
+        view.setBounds({ 
+          x: 0, 
+          y: tabBarHeight, 
+          width: newBounds.width, 
+          height: newBounds.height - tabBarHeight 
+        });
+      }
+    });
+    
+    console.log(`📐 Resized all views to: ${newBounds.width}x${newBounds.height}`);
+  };
+  
+  // Handle window resize
+  win.on('resize', resizeAllViews);
+  
+  // Handle enter/leave fullscreen
+  win.on('enter-full-screen', () => {
+    console.log('🖥️ Entering fullscreen mode');
+    setTimeout(resizeAllViews, 100); // Small delay to ensure proper dimensions
+  });
+  
+  win.on('leave-full-screen', () => {
+    console.log('🖥️ Leaving fullscreen mode');
+    setTimeout(resizeAllViews, 100); // Small delay to ensure proper dimensions
+  });
+  
+  // Handle maximize/unmaximize
+  win.on('maximize', () => {
+    console.log('📏 Window maximized');
+    setTimeout(resizeAllViews, 50);
+  });
+  
+  win.on('unmaximize', () => {
+    console.log('📏 Window unmaximized');
+    setTimeout(resizeAllViews, 50);
   });
 
   return win;
@@ -310,15 +355,16 @@ const switchToTab = (parentWindow, tabIndex) => {
     parentWindow.removeBrowserView(currentView);
   }
   
-  // Show new view
+  // Show new view with correct dimensions
   const newView = parentWindow.contentViews[tabIndex];
   if (newView) {
     parentWindow.addBrowserView(newView);
+    // Ensure the view uses the full current window dimensions
     newView.setBounds({ x: 0, y: tabBarHeight, width: bounds.width, height: bounds.height - tabBarHeight });
     
     parentWindow.activeTabIndex = tabIndex;
     
-    console.log(`🔄 Switched to tab ${tabIndex + 1} of ${parentWindow.contentViews.length}`);
+    console.log(`🔄 Switched to tab ${tabIndex + 1} of ${parentWindow.contentViews.length} (${bounds.width}x${bounds.height})`);
     updateTabBar(parentWindow);
   }
 };
@@ -394,6 +440,13 @@ ipcMain.on('switch-tab', (event, tabIndex) => {
   const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
   if (parentWindow) {
     switchToTab(parentWindow, tabIndex);
+  }
+});
+
+ipcMain.on('force-resize', (event) => {
+  const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
+  if (parentWindow) {
+    forceResizeAllViews(parentWindow);
   }
 });
 
@@ -643,3 +696,33 @@ nativeTheme.on('updated', () => {
     }
   });
 });
+
+// Function to force resize all views (useful for fixing layout issues)
+const forceResizeAllViews = (parentWindow) => {
+  if (!parentWindow || !parentWindow.contentViews) return;
+  
+  const bounds = parentWindow.getContentBounds();
+  const tabBarHeight = 40;
+  
+  console.log(`🔧 Force resizing all views to: ${bounds.width}x${bounds.height}`);
+  
+  // Resize tab bar
+  if (parentWindow.tabBarView) {
+    parentWindow.tabBarView.setBounds({ x: 0, y: 0, width: bounds.width, height: tabBarHeight });
+  }
+  
+  // Resize all content views
+  parentWindow.contentViews.forEach((view, index) => {
+    if (view) {
+      view.setBounds({ 
+        x: 0, 
+        y: tabBarHeight, 
+        width: bounds.width, 
+        height: bounds.height - tabBarHeight 
+      });
+      console.log(`  📐 Resized view ${index + 1}: ${bounds.width}x${bounds.height - tabBarHeight}`);
+    }
+  });
+  
+  console.log(`✅ Force resize completed for ${parentWindow.contentViews.length} views`);
+};
