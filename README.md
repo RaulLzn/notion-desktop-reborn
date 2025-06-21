@@ -72,7 +72,3 @@ The application now provides a complete desktop experience for Notion with:
 - **Automatic theme synchronization** between tab bar and content
 - **Seamless integration** with Notion's interface
 - **Cross-platform compatibility** (optimized for Linux)
-
----
-**Special thanks to [Steverydz](https://github.com/steverydz)**
-
