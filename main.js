@@ -172,9 +172,10 @@ const createWindow = () => {
   tabBarView.webContents.loadFile(path.join(__dirname, 'tab-bar.html'));
   
   // Load Notion in content view
-  session.defaultSession.setUserAgent("Chrome");
-  contentView.webContents.setUserAgent("Chrome");
-  contentView.webContents.loadURL("https://notion.so", { userAgent: "Chrome" });
+  const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  session.defaultSession.setUserAgent(linuxUserAgent);
+  contentView.webContents.setUserAgent(linuxUserAgent);
+  contentView.webContents.loadURL("https://notion.so", { userAgent: linuxUserAgent });
 
   // Apply theme to content view
   applyThemeToView(contentView.webContents);
@@ -216,8 +217,9 @@ const createNewTab = (parentWindow, url = "https://notion.so") => {
   parentWindow.contentViews.push(newContentView);
   
   // Set user agent and load the URL
-  newContentView.webContents.setUserAgent("Chrome");
-  newContentView.webContents.loadURL(url, { userAgent: "Chrome" });
+  const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  newContentView.webContents.setUserAgent(linuxUserAgent);
+  newContentView.webContents.loadURL(url, { userAgent: linuxUserAgent });
   
   // Apply theme to new content view
   applyThemeToView(newContentView.webContents);
@@ -397,7 +399,7 @@ ipcMain.on('switch-tab', (event, tabIndex) => {
 
 app.on("ready", () => {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-    details.requestHeaders["User-Agent"] = "Chrome";
+    details.requestHeaders["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 
@@ -513,6 +515,11 @@ const injectLightThemeCSS = (webContents) => {
 // Function to detect and apply theme
 const applyThemeToView = (webContents) => {
   webContents.on('did-finish-load', () => {
+    // Inject Linux keyboard shortcuts override first
+    setTimeout(() => {
+      injectLinuxKeyboardShortcuts(webContents);
+    }, 100);
+    
     // Detect if Notion is using dark theme
     webContents.executeJavaScript(`
       (function() {
@@ -540,6 +547,9 @@ const applyThemeToView = (webContents) => {
   // Listen for theme changes in the page
   webContents.on('did-navigate', () => {
     setTimeout(() => {
+      // Inject keyboard shortcuts override again after navigation
+      injectLinuxKeyboardShortcuts(webContents);
+      
       webContents.executeJavaScript(`
         (function() {
           const isDarkTheme = document.documentElement.classList.contains('dark') || 
@@ -561,6 +571,55 @@ const applyThemeToView = (webContents) => {
         }
       });
     }, 1000);
+  });
+};
+
+// Function to inject Linux keyboard shortcuts override
+const injectLinuxKeyboardShortcuts = (webContents) => {
+  const keyboardOverrideScript = `
+    (function() {
+      // Override platform detection for keyboard shortcuts
+      Object.defineProperty(navigator, 'platform', {
+        get: function() { return 'Linux x86_64'; }
+      });
+      
+      Object.defineProperty(navigator, 'appVersion', {
+        get: function() { return '5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'; }
+      });
+      
+      // Force Ctrl key behavior instead of Cmd/Meta key
+      const originalAddEventListener = EventTarget.prototype.addEventListener;
+      EventTarget.prototype.addEventListener = function(type, listener, options) {
+        if (type === 'keydown' || type === 'keyup' || type === 'keypress') {
+          const wrappedListener = function(event) {
+            // If Meta key is pressed but we're on Linux, convert to Ctrl
+            if (event.metaKey && !event.ctrlKey) {
+              const newEvent = new KeyboardEvent(event.type, {
+                key: event.key,
+                code: event.code,
+                ctrlKey: true,
+                altKey: event.altKey,
+                shiftKey: event.shiftKey,
+                metaKey: false,
+                bubbles: event.bubbles,
+                cancelable: event.cancelable
+              });
+              Object.defineProperty(newEvent, 'target', { value: event.target });
+              return listener.call(this, newEvent);
+            }
+            return listener.call(this, event);
+          };
+          return originalAddEventListener.call(this, type, wrappedListener, options);
+        }
+        return originalAddEventListener.call(this, type, listener, options);
+      };
+      
+      console.log('🐧 Linux keyboard shortcuts override injected');
+    })();
+  `;
+  
+  webContents.executeJavaScript(keyboardOverrideScript).catch(err => {
+    console.log('Warning: Could not inject keyboard shortcuts override:', err.message);
   });
 };
 
