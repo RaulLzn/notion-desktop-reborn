@@ -27,7 +27,7 @@ function registerMenuHandling(win) {
 
   // Adding menu item to the "Window" menu
   const menu = Menu.getApplicationMenu();
-  const windowMenu = menu.items?.find((el) => el.role === "windowmenu");
+  const windowMenu = menu.items?.find((el) => el.label === "Ventana" || el.role === "windowmenu");
   if (windowMenu) {
     windowMenu.submenu.insert(0, new MenuItem({
       label: "Open menu bar on ALT+\\",

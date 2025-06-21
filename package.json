@@ -4,7 +4,9 @@
   "description": "A snap of Notion",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "ELECTRON_DISABLE_SECURITY_WARNINGS=true electron . --no-sandbox",
+    "start-x11": "GDK_BACKEND=x11 ELECTRON_DISABLE_SECURITY_WARNINGS=true electron . --no-sandbox",
+    "start-debug": "ELECTRON_DISABLE_SECURITY_WARNINGS=true electron . --no-sandbox --enable-logging",
     "dist": "electron-builder --linux snap"
   },
   "build": {
@@ -22,7 +24,7 @@
   "author": "Sunshio",
   "license": "ISC",
   "devDependencies": {
-    "electron": "36.1.0",
+    "electron": "^28.3.3",
     "electron-builder": "26.0.12"
   }
 }

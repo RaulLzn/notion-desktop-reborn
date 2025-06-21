@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--tab-bar-bg);
+            border-bottom: 1px solid var(--tab-bar-border);
+            user-select: none;
+            -webkit-app-region: drag;
+            color: var(--text-color);
+        }
+        
+        /* Light theme (default) */
+        :root {
+            --tab-bar-bg: linear-gradient(to bottom, #fafafa, #f0f0f0);
+            --tab-bar-border: #e0e0e0;
+            --tab-bg: #e8e8e8;
+            --tab-bg-hover: #f0f0f0;
+            --tab-bg-active: white;
+            --tab-border: #d0d0d0;
+            --tab-active-border: #0066cc;
+            --text-color: #333;
+            --text-color-inactive: #666;
+            --text-color-hover: #333;
+            --close-btn-color: #999;
+            --close-btn-hover-bg: #ff5f56;
+            --close-btn-hover-color: white;
+            --new-tab-btn-hover: #e0e0e0;
+            --scrollbar-track: #f1f1f1;
+            --scrollbar-thumb: #c1c1c1;
+            --scrollbar-thumb-hover: #a1a1a1;
+        }
+        
+        /* Dark theme */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --tab-bar-bg: linear-gradient(to bottom, #2f3437, #25292c);
+                --tab-bar-border: #1a1d20;
+                --tab-bg: #3d4147;
+                --tab-bg-hover: #4a4f56;
+                --tab-bg-active: #2f3437;
+                --tab-border: #4a4f56;
+                --tab-active-border: #4a90e2;
+                --text-color: #e6e6e6;
+                --text-color-inactive: #a0a0a0;
+                --text-color-hover: #ffffff;
+                --close-btn-color: #888;
+                --close-btn-hover-bg: #ff5f56;
+                --close-btn-hover-color: white;
+                --new-tab-btn-hover: #4a4f56;
+                --scrollbar-track: #2f3437;
+                --scrollbar-thumb: #5a6066;
+                --scrollbar-thumb-hover: #6a7076;
+            }
+        }
+        
+        /* Force dark theme when body has dark-theme class */
+        body.dark-theme {
+            --tab-bar-bg: linear-gradient(to bottom, #2f3437, #25292c);
+            --tab-bar-border: #1a1d20;
+            --tab-bg: #3d4147;
+            --tab-bg-hover: #4a4f56;
+            --tab-bg-active: #2f3437;
+            --tab-border: #4a4f56;
+            --tab-active-border: #4a90e2;
+            --text-color: #e6e6e6;
+            --text-color-inactive: #a0a0a0;
+            --text-color-hover: #ffffff;
+            --close-btn-color: #888;
+            --close-btn-hover-bg: #ff5f56;
+            --close-btn-hover-color: white;
+            --new-tab-btn-hover: #4a4f56;
+            --scrollbar-track: #2f3437;
+            --scrollbar-thumb: #5a6066;
+            --scrollbar-thumb-hover: #6a7076;
+        }
+        
+        .tab-bar {
+            display: flex;
+            height: 40px;
+            background: var(--tab-bar-bg);
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        /* Custom scrollbar styling */
+        .tab-bar::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .tab-bar::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        
+        .tab-bar::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+        
+        .tab-bar::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-thumb-hover);
+        }
+        
+        .tab {
+            display: flex;
+            align-items: center;
+            min-width: 120px;
+            max-width: 240px;
+            height: 100%;
+            padding: 0 12px;
+            border-right: 1px solid var(--tab-border);
+            cursor: pointer;
+            background: var(--tab-bg);
+            color: var(--text-color-inactive);
+            transition: all 0.2s ease;
+            -webkit-app-region: no-drag;
+            position: relative;
+        }
+        
+        .tab:hover {
+            background: var(--tab-bg-hover);
+            color: var(--text-color-hover);
+        }
+        
+        .tab.active {
+            background: var(--tab-bg-active);
+            color: var(--text-color);
+            border-bottom: 2px solid var(--tab-active-border);
+            box-shadow: inset 0 0 0 1px var(--tab-active-border);
+        }
+        
+        .tab-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px;
+            margin-right: 8px;
+        }
+        
+        .tab-close {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            background: transparent;
+            color: var(--close-btn-color);
+            transition: all 0.2s ease;
+        }
+        
+        .tab-close:hover {
+            background: var(--close-btn-hover-bg);
+            color: var(--close-btn-hover-color);
+        }
+        
+        .new-tab-btn {
+            width: 32px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-color-inactive);
+            -webkit-app-region: no-drag;
+            transition: all 0.2s ease;
+        }
+        
+        .new-tab-btn:hover {
+            background: var(--new-tab-btn-hover);
+            color: var(--text-color);
+        }
+        
+        .tab-favicon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTggMEM5LjEwNDU3IDAgMTAgMC44OTU0MyAxMCAySDZDNiAwLjg5NTQzIDYgMCA4IDBaIiBmaWxsPSIjMDAwIi8+CjxwYXRoIGQ9Ik0yIDRIMTRWMTJIMlY0WiIgZmlsbD0iIzAwMCIvPgo8L3N2Zz4K') no-repeat center;
+            background-size: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="tab-bar" id="tabBar">
+        <!-- Tabs will be inserted here dynamically -->
+        <button class="new-tab-btn" id="newTabBtn" title="Nueva pestaña">+</button>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 Tab bar initialized');
+            
+            // Function to update theme
+            function updateTheme() {
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.body.classList.toggle('dark-theme', isDark);
+            }
+            
+            // Initial theme setup
+            updateTheme();
+            
+            // Listen for tab updates from main process
+            ipcRenderer.on('update-tabs', (event, tabs, activeIndex) => {
+                updateTabBar(tabs, activeIndex);
+            });
+            
+            // Listen for theme updates from main process
+            ipcRenderer.on('theme-updated', (event, isDark) => {
+                document.body.classList.toggle('dark-theme', isDark);
+            });
+            
+            // Listen for new tab button clicks
+            const newTabBtn = document.getElementById('newTabBtn');
+            if (newTabBtn) {
+                newTabBtn.addEventListener('click', () => {
+                    ipcRenderer.send('new-tab');
+                });
+            }
+            
+            function updateTabBar(tabs, activeIndex) {
+                const tabBar = document.getElementById('tabBar');
+                const newTabBtn = document.getElementById('newTabBtn');
+                
+                if (!tabBar) return;
+                
+                // Clear existing tabs (but keep the new tab button)
+                const existingTabs = tabBar.querySelectorAll('.tab');
+                existingTabs.forEach(tab => tab.remove());
+                
+                // Create tab elements
+                tabs.forEach((tab, index) => {
+                    const tabElement = document.createElement('div');
+                    tabElement.className = `tab ${index === activeIndex ? 'active' : ''}`;
+                    tabElement.setAttribute('data-index', index);
+                    
+                    tabElement.innerHTML = `
+                        <div class="tab-favicon"></div>
+                        <div class="tab-title" title="${tab.title || tab.url}">${tab.title || 'Loading...'}</div>
+                        ${tabs.length > 1 ? '<div class="tab-close">×</div>' : ''}
+                    `;
+                    
+                    // Add click handlers
+                    tabElement.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('tab-close')) {
+                            e.stopPropagation();
+                            ipcRenderer.send('close-tab', index);
+                        } else {
+                            ipcRenderer.send('switch-tab', index);
+                        }
+                    });
+                    
+                    // Insert before the new tab button
+                    tabBar.insertBefore(tabElement, newTabBtn);
+                });
+            }
+            
+            // Initial load
+            ipcRenderer.send('get-tabs');
+        });
+    </script>
+</body>
+</html>
