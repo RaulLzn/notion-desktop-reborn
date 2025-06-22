@@ -1,6 +1,15 @@
-# Notion Desktop for Linux
+# Notion Desktop for Linux v2.0
 
-A desktop application for [Notion](https://notion.so) with **tab support** and full keyboard shortcuts.
+A desktop application for [Notion](https://notion.so) with **visual tab support** and **full Linux keyboard shortcuts**.
+
+## 🚀 What's New in v2.0
+
+### ✨ **Enhanced Features**
+- **Perfect fullscreen experience** - no layout issues or blank spaces
+- **Native Linux keyboard shortcuts** - uses Ctrl instead of Super/Meta key
+- **Enhanced window management** - seamless resize handling for all screen modes
+- **Force resize option** - `Ctrl+Shift+R` for instant layout correction
+- **Intelligent platform detection** - optimized specifically for Linux desktop environment
 
 ## Features
 
@@ -18,6 +27,7 @@ A desktop application for [Notion](https://notion.so) with **tab support** and f
 - **Ctrl+W**: Close current tab
 - **Ctrl+Tab**: Next tab
 - **Ctrl+Shift+Tab**: Previous tab
+- **Ctrl+Shift+R**: Force resize views (fixes layout issues)
 - **Ctrl+Z**: Undo (works fully in Notion) ✅
 - **Ctrl+Shift+Z**: Redo (works fully in Notion) ✅
 - **Ctrl+C/V/X**: Copy/Paste/Cut ✅
@@ -32,6 +42,14 @@ A desktop application for [Notion](https://notion.so) with **tab support** and f
 - ✅ Auto-hide menu bar with **Alt+\\** toggle
 - ✅ External link handling (opens in system browser)
 - ✅ Window title shows current tab and tab count
+- ✅ **Perfect fullscreen experience** - no layout issues or blank spaces
+- ✅ **Enhanced window management** - seamless resize handling for all screen modes
+
+### 🐧 **Linux Optimization**
+- ✅ **Native Linux keyboard shortcuts** - uses Ctrl instead of Super/Meta key
+- ✅ **Intelligent platform detection** - optimized specifically for Linux desktop environment
+- ✅ **GTK compatibility** with proper error handling
+- ✅ **Linux-specific user agent** for optimal Notion experience
 
 ## Development
 
