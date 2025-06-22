@@ -1,0 +1,117 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 2.0.0)'
+        required: true
+        default: '2.0.0'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install electron-builder
+      run: npm install -g electron-builder
+
+    - name: Build all Linux packages
+      run: npm run build-all
+
+    - name: Get version
+      id: get_version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/v}
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "TAG_NAME=v$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Extract changelog for this version
+      id: changelog
+      run: |
+        VERSION="${{ steps.get_version.outputs.VERSION }}"
+        # Extract changelog section for this version
+        sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' > current_changelog.md
+        # If the changelog is empty, create a default one
+        if [ ! -s current_changelog.md ]; then
+          echo "## Release $VERSION" > current_changelog.md
+          echo "" >> current_changelog.md
+          echo "New release of Notion Desktop Reborn" >> current_changelog.md
+        fi
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.TAG_NAME }}
+        release_name: Notion Desktop Reborn ${{ steps.get_version.outputs.VERSION }}
+        body_path: current_changelog.md
+        draft: false
+        prerelease: false
+
+    - name: Upload AppImage
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/notion-desktop-reborn-${{ steps.get_version.outputs.VERSION }}.AppImage
+        asset_name: notion-desktop-reborn-${{ steps.get_version.outputs.VERSION }}.AppImage
+        asset_content_type: application/octet-stream
+
+    - name: Upload Snap
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/notion-desktop-reborn_${{ steps.get_version.outputs.VERSION }}_amd64.snap
+        asset_name: notion-desktop-reborn_${{ steps.get_version.outputs.VERSION }}_amd64.snap
+        asset_content_type: application/octet-stream
+
+    - name: Upload Deb
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/notion-desktop-reborn_${{ steps.get_version.outputs.VERSION }}_amd64.deb
+        asset_name: notion-desktop-reborn_${{ steps.get_version.outputs.VERSION }}_amd64.deb
+        asset_content_type: application/vnd.debian.binary-package
+
+    - name: Upload RPM
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/notion-desktop-reborn-${{ steps.get_version.outputs.VERSION }}.x86_64.rpm
+        asset_name: notion-desktop-reborn-${{ steps.get_version.outputs.VERSION }}.x86_64.rpm
+        asset_content_type: application/x-rpm
+
+    - name: Notify release completion
+      run: |
+        echo "✅ Release ${{ steps.get_version.outputs.VERSION }} created successfully!"
+        echo "📦 All packages uploaded to GitHub Releases"
+        echo "🔗 Release URL: ${{ steps.create_release.outputs.html_url }}"

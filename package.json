@@ -11,7 +11,10 @@
     "build-snap": "electron-builder --linux snap",
     "build-deb": "electron-builder --linux deb",
     "build-rpm": "electron-builder --linux rpm",
-    "build-all": "electron-builder --linux"
+    "build-all": "electron-builder --linux",
+    "pre-release": "./scripts/pre-release.sh",
+    "release": "./scripts/release.sh",
+    "manual-release": "./scripts/manual-release.sh"
   },
   "build": {
     "productName": "Notion Desktop Reborn",
