@@ -1,4 +1,4 @@
-# Changelog
+# Changelog - Notion Desktop Reborn
 
 ## [2.0.0] - 2025-06-21
 
@@ -13,6 +13,8 @@
 - **Improved event handling** - robust window state listeners for all scenarios
 - **Menu integration** - new "Redimensionar vistas" option in View menu
 - **IPC communication** - force-resize command for tab bar integration
+- **Snap Store packaging** - ready for distribution via Ubuntu Snap Store
+- **Automated deployment scripts** - `upload-snap.sh` for streamlined publishing
 
 #### 🔧 Fixed
 - Fixed fullscreen resizing issues causing blank spaces
@@ -30,16 +32,19 @@
 - Improved `resizeAllViews()` and `switchToTab()` with better dimension handling
 
 #### 📦 Distribution
+- **Snap Store ready** - `notion-desktop-reborn` package configured for Ubuntu Snap Store
 - Added support for multiple package formats (AppImage, Snap, Deb, RPM)
 - Enhanced build configuration for Linux desktop integration
 - Improved package metadata and descriptions
+- Complete Snap Store documentation and deployment workflow
 
-### 🎯 Key Features
+### 🎯 Key Features of Notion Desktop Reborn
 - **Visual tab management** with full functionality
 - **Native keyboard shortcuts** for all common operations (Ctrl+Z, Ctrl+K, etc.)
 - **Automatic theme synchronization** between system and application
 - **Cross-platform compatibility** optimized specifically for Linux
 - **Professional window management** with manual override options
+- **Snap Store distribution** for easy installation and updates
 
 ---
 
@@ -51,4 +56,4 @@
 
 ---
 
-**Note**: Version 2.0.0 represents a major rewrite focusing on Linux optimization and professional window management. All users are recommended to upgrade for the best experience.
+**Note**: Version 2.0.0 represents a major rewrite of Notion Desktop Reborn focusing on Linux optimization and professional window management. All users are recommended to upgrade for the best experience.

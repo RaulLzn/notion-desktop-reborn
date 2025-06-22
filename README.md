@@ -1,4 +1,4 @@
-# Notion Desktop for Linux v2.0
+# Notion Desktop Reborn v2.0
 
 A desktop application for [Notion](https://notion.so) with **visual tab support** and **full Linux keyboard shortcuts**.
 
@@ -10,6 +10,7 @@ A desktop application for [Notion](https://notion.so) with **visual tab support*
 - **Enhanced window management** - seamless resize handling for all screen modes
 - **Force resize option** - `Ctrl+Shift+R` for instant layout correction
 - **Intelligent platform detection** - optimized specifically for Linux desktop environment
+- **Snap Store ready** - easy installation via `sudo snap install notion-desktop-reborn`
 
 ## Features
 
