@@ -1,5 +1,5 @@
 {
-  "name": "notion-snap-reborn",
+  "name": "notion-desktop-reborn",
   "version": "2.0.0",
   "description": "A desktop application for Notion with tab support and full keyboard shortcuts optimized for Linux",
   "main": "main.js",
@@ -14,7 +14,7 @@
     "build-all": "electron-builder --linux"
   },
   "build": {
-    "productName": "Notion Desktop",
+    "productName": "Notion Desktop Reborn",
     "appId": "com.notion.desktop.reborn",
     "directories": {
       "output": "dist"
@@ -40,13 +40,13 @@
       ],
       "category": "Office",
       "icon": "build/icons/icon.png",
-      "maintainer": "Notion Desktop Team",
-      "vendor": "Notion Desktop",
+      "maintainer": "Notion Desktop Reborn Team",
+      "vendor": "Notion Desktop Reborn",
       "description": "Desktop application for Notion with visual tab management and Linux optimization"
     },
     "snap": {
-      "summary": "Desktop Notion with tabs and keyboard shortcuts",
-      "description": "A desktop application for Notion with visual tab management, native keyboard shortcuts, and Linux optimization.",
+      "summary": "Desktop application for Notion with tab support and Linux optimization",
+      "description": "Notion Desktop Reborn is a feature-rich desktop application for Notion with visual tab management, native keyboard shortcuts, and Linux optimization.",
       "grade": "stable",
       "confinement": "strict",
       "plugs": [

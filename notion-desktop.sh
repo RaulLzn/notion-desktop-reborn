@@ -1,2 +1,2 @@
 #!/bin/bash
-exec "$SNAP/lib/notion-desktop" "$@"
+exec "$SNAP/lib/notion-desktop-reborn" "$@"

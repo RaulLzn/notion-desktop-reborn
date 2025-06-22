@@ -1,31 +1,40 @@
-# 📦 Notion Desktop for Linux v2.0 - Installation Guide
+# 📦 Notion Desktop Reborn v2.0 - Installation Guide
 
 ## 🚀 Quick Start
 
-### AppImage (Recommended - Universal)
+### Snap Store (Recommended)
+```bash
+# Install from Snap Store (when available)
+sudo snap install notion-desktop-reborn
+
+# Run the application
+notion-desktop-reborn
+```
+
+### AppImage (Universal)
 ```bash
 # Download and make executable
-chmod +x "Notion Desktop-2.0.0.AppImage"
+chmod +x "Notion Desktop Reborn-2.0.0.AppImage"
 
 # Run directly
-./"Notion Desktop-2.0.0.AppImage"
+./"Notion Desktop Reborn-2.0.0.AppImage"
 ```
 
 ### Integration with Desktop Environment
 ```bash
 # Move to applications folder (optional)
-sudo mv "Notion Desktop-2.0.0.AppImage" /opt/notion-desktop.AppImage
+sudo mv "Notion Desktop Reborn-2.0.0.AppImage" /opt/notion-desktop-reborn.AppImage
 
 # Create desktop entry
-cat > ~/.local/share/applications/notion-desktop.desktop << EOF
+cat > ~/.local/share/applications/notion-desktop-reborn.desktop << EOF
 [Desktop Entry]
-Name=Notion Desktop
-Comment=Desktop application for Notion with tab support
-Exec=/opt/notion-desktop.AppImage
+Name=Notion Desktop Reborn
+Comment=Desktop application for Notion with tab support and Linux optimization
+Exec=/opt/notion-desktop-reborn.AppImage
 Icon=notion
 Type=Application
 Categories=Office;TextEditor;
-Keywords=notion;notes;productivity;tabs;
+Keywords=notion;notes;productivity;tabs;linux;reborn;
 EOF
 
 # Update desktop database
@@ -37,8 +46,8 @@ update-desktop-database ~/.local/share/applications/
 ### Build from Source
 ```bash
 # Clone repository
-git clone https://github.com/your-username/notion-snap-reborn.git
-cd notion-snap-reborn
+git clone https://github.com/your-username/notion-desktop-reborn.git
+cd notion-desktop-reborn
 
 # Install dependencies
 npm install
@@ -98,7 +107,7 @@ If you get GTK-related errors, try:
 ./start.sh
 
 # Or run with X11 backend
-GDK_BACKEND=x11 ./notion-desktop.AppImage
+GDK_BACKEND=x11 ./notion-desktop-reborn.AppImage
 ```
 
 ### Keyboard Shortcuts Not Working
@@ -117,9 +126,9 @@ All shortcuts now use the `Ctrl` key on Linux (not Super/Meta). If shortcuts sti
 
 ## 🔗 Links
 
-- **GitHub Repository**: https://github.com/your-username/notion-snap-reborn
-- **Bug Reports**: https://github.com/your-username/notion-snap-reborn/issues
-- **Feature Requests**: https://github.com/your-username/notion-snap-reborn/discussions
+- **GitHub Repository**: https://github.com/your-username/notion-desktop-reborn
+- **Bug Reports**: https://github.com/your-username/notion-desktop-reborn/issues
+- **Feature Requests**: https://github.com/your-username/notion-desktop-reborn/discussions
 
 ## 📝 License
 
