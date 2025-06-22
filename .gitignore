@@ -1,9 +1,96 @@
-#IDE
-.idea/*
-
-#Node
-.npm
-.cache
+# Node modules
 node_modules/
+
+# Electron distribution files
 dist/
+# Depende de cómo Electron Builder configura su output, a veces también es:
+# out/
+
+# npm package manager cache
+.npm/
+.cache
 .node_repl_history
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# Environment variables
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# MacOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux specific files
+*~
+
+# VS Code specific files
+.vscode/
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/
+
+# Snapcraft build artifacts
+*.snap
+snap/local/
+parts/
+prime/
+stage/
+*.snapcraft
+snapcraft.yaml.md5
+
+# Electron build artifacts
+build/icons/
+!build/icons/icon.png
+
+# Lock files (opcional, depende de tu preferencia)
+# package-lock.json
+# yarn.lock
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS generated files
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
