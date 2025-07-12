@@ -1,6 +1,6 @@
 {
   "name": "notion-desktop-reborn",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "A desktop application for Notion with tab support and full keyboard shortcuts optimized for Linux",
   "main": "main.js",
   "scripts": {
