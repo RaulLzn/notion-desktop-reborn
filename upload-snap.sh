@@ -4,7 +4,7 @@ echo "🚀 Notion Desktop Reborn - Snap Store Upload"
 echo "============================================="
 
 # Check if snap file exists
-SNAP_FILE="ralloz-notion-enhanced_2.1.0_amd64.snap"
+SNAP_FILE="notion-desktop-reborn_2.1.0_amd64.snap"
 
 if [ ! -f "$SNAP_FILE" ]; then
     echo "❌ Snap file not found: $SNAP_FILE"
@@ -30,8 +30,8 @@ echo "✅ Successfully logged in to Snap Store"
 echo ""
 
 # Register the snap name (might fail if already registered)
-echo "📝 Registering snap name 'notion-desktop-enhanced'..."
-snapcraft register ralloz-notion-enhanced
+echo "📝 Registering snap name 'notion-desktop-reborn'..."
+snapcraft register notion-desktop-reborn
 
 if [ $? -eq 0 ]; then
     echo "✅ Successfully registered snap name"
@@ -52,12 +52,12 @@ if [ $? -eq 0 ]; then
     echo "🎉 Successfully uploaded snap to Snap Store!"
     echo ""
     echo "📋 Next steps:"
-    echo "1. Go to https://snapcraft.io/notion-desktop-enhanced"
+    echo "1. Go to https://snapcraft.io/notion-desktop-reborn"
     echo "2. Complete the store listing (description, screenshots, etc.)"
     echo "3. Release to edge channel for testing:"
-    echo "   snapcraft release notion-desktop-enhanced <revision> edge"
+    echo "   snapcraft release notion-desktop-reborn <revision> edge"
     echo "4. After testing, release to stable:"
-    echo "   snapcraft release notion-desktop-enhanced <revision> stable"
+    echo "   snapcraft release notion-desktop-reborn <revision> stable"
     echo ""
     echo "🔗 Snap Store Dashboard: https://snapcraft.io/account/"
 else
