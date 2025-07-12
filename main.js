@@ -1,5 +1,22 @@
+console.log("--- LOADING LATEST CODE - v3 ---"); // <-- Agrega esto en la línea 1
+
 const { app, BrowserWindow, shell, session, Menu, ipcMain, BrowserView, nativeTheme } = require("electron");
 const path = require('path');
+
+// Global variable to track if IPC handlers are already registered
+let ipcHandlersRegistered = false;
+
+// Global debounce mechanism to prevent rapid actions
+let globalActionDebounce = {
+  newTab: false,
+  lastNewTabTime: 0
+};
+
+// Global action counter for debugging
+let actionCounter = {
+  tabCreation: 0,
+  ipcCalls: 0
+};
 
 // Fix GTK conflicts on Linux
 if (process.platform === 'linux') {
@@ -248,6 +265,26 @@ const createWindow = () => {
 
 // Function to create a new tab
 const createNewTab = (parentWindow, url = "https://notion.so") => {
+  actionCounter.tabCreation++;
+  console.log(`🔥 [${actionCounter.tabCreation}] createNewTab called for: ${url}`);
+  
+  // Check global debounce timer
+  const now = Date.now();
+  if (globalActionDebounce.newTab && now - globalActionDebounce.lastNewTabTime < 500) {
+    console.log(`⏱️ [${actionCounter.tabCreation}] New tab action debounced - last action was ${now - globalActionDebounce.lastNewTabTime}ms ago`);
+    return;
+  }
+  globalActionDebounce.newTab = true;
+  globalActionDebounce.lastNewTabTime = now;
+  
+  console.log(`✅ [${actionCounter.tabCreation}] Proceeding with tab creation`);
+  
+  // Reset debounce after 1 second
+  setTimeout(() => {
+    globalActionDebounce.newTab = false;
+    console.log(`🔓 [${actionCounter.tabCreation}] Debounce reset`);
+  }, 1000);
+  
   const newContentView = new BrowserView({
     webPreferences: {
       spellcheck: false,
@@ -272,21 +309,29 @@ const createNewTab = (parentWindow, url = "https://notion.so") => {
   // Switch to the new tab
   switchToTab(parentWindow, parentWindow.contentViews.length - 1);
   
-  // Handle window open events for this tab
-  newContentView.webContents.setWindowOpenHandler(({ url, frameName, disposition }) => {
-    console.log('Tab window open request:', { url, frameName, disposition });
-    
-    if (url.startsWith("https://www.notion.so") || url.startsWith("https://notion.so")) {
-      if (disposition === 'new-window' || disposition === 'foreground-tab' || disposition === 'background-tab') {
-        createNewTab(parentWindow, url);
+  // Handle window open events for this tab (prevent duplicate handlers)
+  if (!newContentView.webContents.windowOpenHandlerSet) {
+    newContentView.webContents.setWindowOpenHandler(({ url, frameName, disposition }) => {
+      console.log('Tab window open request:', { url, frameName, disposition });
+      
+      if (url.startsWith("https://www.notion.so") || url.startsWith("https://notion.so")) {
+        if (disposition === 'new-window' || disposition === 'foreground-tab' || disposition === 'background-tab') {
+          // Prevent multiple rapid tab creation
+          if (!newContentView.creatingNewTab) {
+            newContentView.creatingNewTab = true;
+            setTimeout(() => { newContentView.creatingNewTab = false; }, 500);
+            createNewTab(parentWindow, url);
+          }
+          return { action: "deny" };
+        }
+        return { action: "allow" };
+      } else {
+        shell.openExternal(url);
         return { action: "deny" };
       }
-      return { action: "allow" };
-    } else {
-      shell.openExternal(url);
-      return { action: "deny" };
-    }
-  });
+    });
+    newContentView.webContents.windowOpenHandlerSet = true;
+  }
 
   console.log(`✨ Created new tab for: ${url}`);
   console.log(`📋 Total tabs: ${parentWindow.contentViews.length}`);
@@ -404,51 +449,85 @@ const updateTabBar = (parentWindow) => {
   const tabs = getTabsInfo(parentWindow);
   console.log(`🔄 Updating tab bar with ${tabs.length} tabs, active: ${parentWindow.activeTabIndex}`);
   
-  parentWindow.tabBarView.webContents.send('update-tabs', tabs, parentWindow.activeTabIndex);
+  // Try multiple methods to ensure the message gets through
+  try {
+    parentWindow.tabBarView.webContents.send('update-tabs', tabs, parentWindow.activeTabIndex);
+    console.log('✅ Tab bar update sent successfully');
+  } catch (error) {
+    console.log('❌ Error sending tab bar update:', error.message);
+  }
+  
   updateWindowTitle(parentWindow);
 };
 
-// IPC handlers for tab management
-ipcMain.on('get-tabs', (event) => {
-  console.log('📨 Received get-tabs request');
-  const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
-  if (parentWindow) {
-    console.log(`🔍 Found parent window with ${parentWindow.contentViews.length} content views`);
-    const tabs = getTabsInfo(parentWindow);
-    console.log('📤 Sending tabs to tab bar:', tabs);
-    event.reply('update-tabs', tabs, parentWindow.activeTabIndex);
-  } else {
-    console.log('❌ Could not find parent window for get-tabs request');
+// Function to register IPC handlers (only once)
+const registerIpcHandlers = () => {
+  if (ipcHandlersRegistered) {
+    console.log('⚠️ IPC handlers already registered, skipping');
+    return;
   }
-});
+  
+  console.log('📡 Registering IPC handlers');
+  
+  // IPC handlers for tab management
+  ipcMain.on('get-tabs', (event) => {
+    actionCounter.ipcCalls++;
+    console.log(`📨 [${actionCounter.ipcCalls}] Received get-tabs request`);
+    const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
+    if (parentWindow) {
+      console.log(`🔍 Found parent window with ${parentWindow.contentViews.length} content views`);
+      const tabs = getTabsInfo(parentWindow);
+      console.log('📤 Sending tabs to tab bar:', tabs);
+      // Use both reply and direct send to ensure delivery
+      event.reply('update-tabs', tabs, parentWindow.activeTabIndex);
+      event.sender.send('update-tabs', tabs, parentWindow.activeTabIndex);
+    } else {
+      console.log('❌ Could not find parent window for get-tabs request');
+      // Send empty tabs if no window found
+      event.reply('update-tabs', [], 0);
+    }
+  });
 
-ipcMain.on('new-tab', (event) => {
-  const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
-  if (parentWindow) {
-    createNewTab(parentWindow);
-  }
-});
+  ipcMain.on('new-tab', (event) => {
+    actionCounter.ipcCalls++;
+    console.log(`🔥 [${actionCounter.ipcCalls}] Received new-tab request`);
+    const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
+    if (parentWindow) {
+      createNewTab(parentWindow);
+    }
+  });
 
-ipcMain.on('close-tab', (event, tabIndex) => {
-  const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
-  if (parentWindow) {
-    closeTab(parentWindow, tabIndex);
-  }
-});
+  ipcMain.on('close-tab', (event, tabIndex) => {
+    actionCounter.ipcCalls++;
+    console.log(`🗑️ [${actionCounter.ipcCalls}] Received close-tab request for index: ${tabIndex}`);
+    const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
+    if (parentWindow) {
+      closeTab(parentWindow, tabIndex);
+    }
+  });
 
-ipcMain.on('switch-tab', (event, tabIndex) => {
-  const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
-  if (parentWindow) {
-    switchToTab(parentWindow, tabIndex);
-  }
-});
+  ipcMain.on('switch-tab', (event, tabIndex) => {
+    actionCounter.ipcCalls++;
+    console.log(`🔄 [${actionCounter.ipcCalls}] Received switch-tab request for index: ${tabIndex}`);
+    const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
+    if (parentWindow) {
+      switchToTab(parentWindow, tabIndex);
+    }
+  });
 
-ipcMain.on('force-resize', (event) => {
-  const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
-  if (parentWindow) {
-    forceResizeAllViews(parentWindow);
-  }
-});
+  ipcMain.on('force-resize', (event) => {
+    actionCounter.ipcCalls++;
+    console.log(`📐 [${actionCounter.ipcCalls}] Received force-resize request`);
+    const parentWindow = BrowserWindow.getAllWindows().find(win => win.tabBarView?.webContents === event.sender);
+    if (parentWindow) {
+      forceResizeAllViews(parentWindow);
+    }
+  });
+  
+  ipcHandlersRegistered = true;
+};
+
+// IPC handlers are now registered via registerIpcHandlers() function above
 
 app.on("ready", () => {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
@@ -456,27 +535,38 @@ app.on("ready", () => {
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 
+  // Register IPC handlers once at startup
+  registerIpcHandlers();
+
   // Set application menu
   const applicationMenu = createApplicationMenu();
   Menu.setApplicationMenu(applicationMenu);
 
   const mainWindow = createWindow();
   
-  // Handle new window requests for the main content view
-  mainWindow.contentView.webContents.setWindowOpenHandler(({ url, frameName, disposition }) => {
-    console.log('🔗 Main content view open request:', { url, frameName, disposition });
-    
-    if (url.startsWith("https://www.notion.so") || url.startsWith("https://notion.so")) {
-      if (disposition === 'new-window' || disposition === 'foreground-tab' || disposition === 'background-tab') {
-        createNewTab(mainWindow, url);
+  // Handle new window requests for the main content view (prevent duplicate handlers)
+  if (!mainWindow.contentView.webContents.windowOpenHandlerSet) {
+    mainWindow.contentView.webContents.setWindowOpenHandler(({ url, frameName, disposition }) => {
+      console.log('🔗 Main content view open request:', { url, frameName, disposition });
+      
+      if (url.startsWith("https://www.notion.so") || url.startsWith("https://notion.so")) {
+        if (disposition === 'new-window' || disposition === 'foreground-tab' || disposition === 'background-tab') {
+          // Prevent multiple rapid tab creation
+          if (!mainWindow.contentView.creatingNewTab) {
+            mainWindow.contentView.creatingNewTab = true;
+            setTimeout(() => { mainWindow.contentView.creatingNewTab = false; }, 500);
+            createNewTab(mainWindow, url);
+          }
+          return { action: "deny" };
+        }
+        return { action: "allow" };
+      } else {
+        shell.openExternal(url);
         return { action: "deny" };
       }
-      return { action: "allow" };
-    } else {
-      shell.openExternal(url);
-      return { action: "deny" };
-    }
-  });
+    });
+    mainWindow.contentView.webContents.windowOpenHandlerSet = true;
+  }
   
   // Listen for title updates
   mainWindow.contentView.webContents.on('page-title-updated', () => {
@@ -487,9 +577,27 @@ app.on("ready", () => {
   // Wait for tab bar to load and then update it
   mainWindow.tabBarView.webContents.once('did-finish-load', () => {
     console.log('🎯 Tab bar loaded, initial update');
+    
+    // Add debugging for tab bar
+    mainWindow.tabBarView.webContents.on('console-message', (event, level, message) => {
+      console.log(`[TAB-BAR] ${message}`);
+    });
+    
+    // Multiple attempts to ensure tab bar gets updated
     setTimeout(() => {
+      console.log('🔄 First tab bar update attempt');
+      updateTabBar(mainWindow);
+    }, 100);
+    
+    setTimeout(() => {
+      console.log('🔄 Second tab bar update attempt');
       updateTabBar(mainWindow);
     }, 500);
+    
+    setTimeout(() => {
+      console.log('🔄 Third tab bar update attempt');
+      updateTabBar(mainWindow);
+    }, 1000);
   });
   
   console.log('🚀 Notion Snap Reborn started with visual tab support!');
@@ -567,12 +675,16 @@ const injectLightThemeCSS = (webContents) => {
 
 // Function to detect and apply theme
 const applyThemeToView = (webContents) => {
-  webContents.on('did-finish-load', () => {
-    // Inject Linux keyboard shortcuts override first
+  // Inject Linux keyboard shortcuts only once when the page finishes loading for the first time
+  webContents.once('did-finish-load', () => {
+    console.log('🐧 Injecting Linux keyboard shortcuts (one-time only)');
     setTimeout(() => {
       injectLinuxKeyboardShortcuts(webContents);
     }, 100);
-    
+  });
+  
+  // Apply theme styling on every page load
+  webContents.on('did-finish-load', () => {
     // Detect if Notion is using dark theme
     webContents.executeJavaScript(`
       (function() {
@@ -597,12 +709,9 @@ const applyThemeToView = (webContents) => {
     });
   });
   
-  // Listen for theme changes in the page
+  // Listen for theme changes in the page (only apply theme, no keyboard shortcuts)
   webContents.on('did-navigate', () => {
     setTimeout(() => {
-      // Inject keyboard shortcuts override again after navigation
-      injectLinuxKeyboardShortcuts(webContents);
-      
       webContents.executeJavaScript(`
         (function() {
           const isDarkTheme = document.documentElement.classList.contains('dark') || 
@@ -629,50 +738,59 @@ const applyThemeToView = (webContents) => {
 
 // Function to inject Linux keyboard shortcuts override
 const injectLinuxKeyboardShortcuts = (webContents) => {
+  // Prevent multiple injections with a robust check
+  if (webContents.keyboardShortcutsInjected) {
+    console.log('⚠️ Keyboard shortcuts already injected for this webContents, skipping');
+    return;
+  }
+  
   const keyboardOverrideScript = `
     (function() {
-      // Override platform detection for keyboard shortcuts
-      Object.defineProperty(navigator, 'platform', {
-        get: function() { return 'Linux x86_64'; }
-      });
+      // Check if already injected
+      if (window.notionKeyboardShortcutsInjected) {
+        console.log('⚠️ Keyboard shortcuts already injected, skipping');
+        return;
+      }
+      window.notionKeyboardShortcutsInjected = true;
       
-      Object.defineProperty(navigator, 'appVersion', {
-        get: function() { return '5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'; }
-      });
-      
-      // Force Ctrl key behavior instead of Cmd/Meta key
-      const originalAddEventListener = EventTarget.prototype.addEventListener;
-      EventTarget.prototype.addEventListener = function(type, listener, options) {
-        if (type === 'keydown' || type === 'keyup' || type === 'keypress') {
-          const wrappedListener = function(event) {
-            // If Meta key is pressed but we're on Linux, convert to Ctrl
-            if (event.metaKey && !event.ctrlKey) {
-              const newEvent = new KeyboardEvent(event.type, {
-                key: event.key,
-                code: event.code,
-                ctrlKey: true,
-                altKey: event.altKey,
-                shiftKey: event.shiftKey,
-                metaKey: false,
-                bubbles: event.bubbles,
-                cancelable: event.cancelable
-              });
-              Object.defineProperty(newEvent, 'target', { value: event.target });
-              return listener.call(this, newEvent);
-            }
-            return listener.call(this, event);
-          };
-          return originalAddEventListener.call(this, type, wrappedListener, options);
+      console.log('🐧 Applying less invasive Linux keyboard shortcuts (v2.0)');
+
+      document.addEventListener('keydown', (event) => {
+        // Intercept Meta key presses (Super/Windows key) and remap them to Ctrl.
+        // This is for shortcuts like Meta+A (Select All), Meta+V (Paste), etc.
+        const isMac = /Mac|iMac|iPhone|iPad|iPod/i.test(navigator.platform);
+        if (!isMac && event.metaKey && !event.ctrlKey) {
+          
+          // Prevent the original event from being processed
+          event.preventDefault();
+          event.stopPropagation();
+
+          // Dispatch a new, synthetic event with the Ctrl key pressed instead.
+          const newEvent = new KeyboardEvent('keydown', {
+            key: event.key,
+            code: event.code,
+            bubbles: event.bubbles,
+            cancelable: event.cancelable,
+            composed: event.composed,
+            altKey: event.altKey,
+            shiftKey: event.shiftKey,
+            ctrlKey: true, // The important part: simulate Ctrl
+            metaKey: false // The important part: disable Meta
+          });
+          
+          event.target.dispatchEvent(newEvent);
         }
-        return originalAddEventListener.call(this, type, listener, options);
-      };
-      
-      console.log('🐧 Linux keyboard shortcuts override injected');
+      }, true); // Use capture phase to catch the event early
+
+      console.log('✅ Linux keyboard remapping is active.');
     })();
   `;
   
-  webContents.executeJavaScript(keyboardOverrideScript).catch(err => {
-    console.log('Warning: Could not inject keyboard shortcuts override:', err.message);
+  webContents.executeJavaScript(keyboardOverrideScript).then(() => {
+    webContents.keyboardShortcutsInjected = true;
+    console.log('✅ Successfully injected new keyboard handler.');
+  }).catch(err => {
+    console.log('❌ Error injecting new keyboard handler:', err.message);
   });
 };
 

@@ -202,77 +202,101 @@
     <script>
         const { ipcRenderer } = require('electron');
         
-        // Wait for DOM to be ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎯 Tab bar initialized');
-            
-            // Function to update theme
-            function updateTheme() {
-                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                document.body.classList.toggle('dark-theme', isDark);
-            }
-            
-            // Initial theme setup
-            updateTheme();
-            
-            // Listen for tab updates from main process
-            ipcRenderer.on('update-tabs', (event, tabs, activeIndex) => {
-                updateTabBar(tabs, activeIndex);
-            });
-            
-            // Listen for theme updates from main process
-            ipcRenderer.on('theme-updated', (event, isDark) => {
-                document.body.classList.toggle('dark-theme', isDark);
-            });
-            
-            // Listen for new tab button clicks
-            const newTabBtn = document.getElementById('newTabBtn');
-            if (newTabBtn) {
-                newTabBtn.addEventListener('click', () => {
-                    ipcRenderer.send('new-tab');
+        // Prevent multiple initialization
+        if (window.tabBarInitialized) {
+            console.log('⚠️ Tab bar already initialized');
+        } else {
+            // Wait for DOM to be ready
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🎯 Tab bar initializing...');
+                
+                // Function to update theme
+                function updateTheme() {
+                    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    document.body.classList.toggle('dark-theme', isDark);
+                }
+                
+                // Initial theme setup
+                updateTheme();
+                
+                // Listen for tab updates from main process
+                ipcRenderer.on('update-tabs', (event, tabs, activeIndex) => {
+                    console.log('📋 Received update-tabs:', tabs, activeIndex);
+                    updateTabBar(tabs, activeIndex);
                 });
-            }
-            
-            function updateTabBar(tabs, activeIndex) {
-                const tabBar = document.getElementById('tabBar');
+                
+                // Listen for theme updates from main process
+                ipcRenderer.on('theme-updated', (event, isDark) => {
+                    document.body.classList.toggle('dark-theme', isDark);
+                });
+                
+                // Listen for new tab button clicks (prevent multiple listeners)
                 const newTabBtn = document.getElementById('newTabBtn');
+                if (newTabBtn && !newTabBtn.hasEventListener) {
+                    newTabBtn.addEventListener('click', () => {
+                        console.log('🔥 New tab button clicked');
+                        ipcRenderer.send('new-tab');
+                    });
+                    newTabBtn.hasEventListener = true;
+                }
                 
-                if (!tabBar) return;
-                
-                // Clear existing tabs (but keep the new tab button)
-                const existingTabs = tabBar.querySelectorAll('.tab');
-                existingTabs.forEach(tab => tab.remove());
-                
-                // Create tab elements
-                tabs.forEach((tab, index) => {
-                    const tabElement = document.createElement('div');
-                    tabElement.className = `tab ${index === activeIndex ? 'active' : ''}`;
-                    tabElement.setAttribute('data-index', index);
+                function updateTabBar(tabs, activeIndex) {
+                    console.log('🔄 Updating tab bar UI with:', tabs.length, 'tabs');
+                    const tabBar = document.getElementById('tabBar');
+                    const newTabBtn = document.getElementById('newTabBtn');
                     
-                    tabElement.innerHTML = `
-                        <div class="tab-favicon"></div>
-                        <div class="tab-title" title="${tab.title || tab.url}">${tab.title || 'Loading...'}</div>
-                        ${tabs.length > 1 ? '<div class="tab-close">×</div>' : ''}
-                    `;
+                    if (!tabBar) {
+                        console.log('❌ Tab bar element not found');
+                        return;
+                    }
                     
-                    // Add click handlers
-                    tabElement.addEventListener('click', (e) => {
-                        if (e.target.classList.contains('tab-close')) {
-                            e.stopPropagation();
-                            ipcRenderer.send('close-tab', index);
-                        } else {
-                            ipcRenderer.send('switch-tab', index);
+                    // Clear existing tabs (but keep the new tab button)
+                    const existingTabs = tabBar.querySelectorAll('.tab');
+                    existingTabs.forEach(tab => tab.remove());
+                    
+                    // Create tab elements
+                    tabs.forEach((tab, index) => {
+                        const tabElement = document.createElement('div');
+                        tabElement.className = `tab ${index === activeIndex ? 'active' : ''}`;
+                        tabElement.setAttribute('data-index', index);
+                        
+                        tabElement.innerHTML = `
+                            <div class="tab-favicon"></div>
+                            <div class="tab-title" title="${tab.title || tab.url}">${tab.title || 'Loading...'}</div>
+                            ${tabs.length > 1 ? '<div class="tab-close">×</div>' : ''}
+                        `;
+                        
+                        // Add click handlers (prevent multiple handlers)
+                        if (!tabElement.hasClickHandler) {
+                            tabElement.addEventListener('click', (e) => {
+                                if (e.target.classList.contains('tab-close')) {
+                                    e.stopPropagation();
+                                    console.log('🗑️ Close tab clicked:', index);
+                                    ipcRenderer.send('close-tab', index);
+                                } else {
+                                    console.log('🔄 Switch tab clicked:', index);
+                                    ipcRenderer.send('switch-tab', index);
+                                }
+                            });
+                            tabElement.hasClickHandler = true;
                         }
+                        
+                        // Insert before the new tab button
+                        tabBar.insertBefore(tabElement, newTabBtn);
                     });
                     
-                    // Insert before the new tab button
-                    tabBar.insertBefore(tabElement, newTabBtn);
-                });
-            }
-            
-            // Initial load
-            ipcRenderer.send('get-tabs');
-        });
+                    console.log('✅ Tab bar updated successfully');
+                }
+                
+                // Initial load
+                console.log('📨 Requesting initial tabs...');
+                ipcRenderer.send('get-tabs');
+                
+                // Mark as initialized
+                window.tabBarInitialized = true;
+                console.log('🎯 Tab bar initialization completed');
+            });
+        }
     </script>
 </body>
 </html>

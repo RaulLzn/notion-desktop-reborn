@@ -4,7 +4,7 @@ echo "🚀 Notion Desktop Reborn - Snap Store Upload"
 echo "============================================="
 
 # Check if snap file exists
-SNAP_FILE="notion-desktop-reborn_2.0.0_amd64.snap"
+SNAP_FILE="notion-desktop-reborn_2.1.0_amd64.snap"
 
 if [ ! -f "$SNAP_FILE" ]; then
     echo "❌ Snap file not found: $SNAP_FILE"

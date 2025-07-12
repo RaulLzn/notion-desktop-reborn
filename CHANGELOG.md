@@ -1,5 +1,32 @@
 # Changelog - Notion Desktop Reborn
 
+## [2.1.0] - 2025-07-11
+
+### 🚀 Enhanced Tab Management & Performance Improvements
+
+#### ✨ Added
+- **Improved tab creation debouncing** - prevents rapid duplicate tab creation
+- **Enhanced IPC handler registration** - single registration prevents duplicate handlers
+- **Global action counters** - debugging support for tab operations and IPC calls
+- **Better window open handling** - improved handling of new window requests
+- **Enhanced debugging output** - comprehensive logging for tab operations
+
+#### 🔧 Fixed
+- Fixed multiple rapid tab creation issue
+- Improved tab switching reliability and performance
+- Better handling of window open events to prevent duplicates
+- Enhanced keyboard shortcut injection (single injection per webContents)
+- Improved error handling and recovery mechanisms
+
+#### 🛠️ Technical Improvements
+- Debounce mechanism for new tab actions (500ms cooldown)
+- Global action tracking for debugging purposes
+- Enhanced window open handler with creation flags
+- Improved theme detection and application
+- Better memory management for closed tabs
+
+---
+
 ## [2.0.0] - 2025-06-21
 
 ### 🚀 Major Release: Enhanced Window Management & Linux Optimization
@@ -56,4 +83,4 @@
 
 ---
 
-**Note**: Version 2.0.0 represents a major rewrite of Notion Desktop Reborn focusing on Linux optimization and professional window management. All users are recommended to upgrade for the best experience.
+**Note**: Version 2.1.0 and 2.0.0 represents a major rewrite of Notion Desktop Reborn focusing on Linux optimization, professional window management, and enhanced tab management. All users are recommended to upgrade for the best experience.
